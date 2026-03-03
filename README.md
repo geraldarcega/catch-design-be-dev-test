@@ -1,6 +1,74 @@
 # Catch Design Backend Dev Test
 A coding test for Backend dev.
 
+## Project Structure
+
+```
+catch-design-be-dev-test/
+├── README.md                         # Main project documentation
+├── customers.db                      # SQLite database (generated)
+│
+├── app/                              # Next.js web application
+│   ├── package.json                  # Node.js dependencies
+│   ├── next.config.ts                # Next.js configuration
+│   ├── tsconfig.json                 # TypeScript configuration
+│   ├── jest.config.js                # Jest testing configuration
+│   ├── jest.setup.js                 # Jest setup file
+│   ├── eslint.config.mjs             # ESLint configuration
+│   ├── postcss.config.mjs            # PostCSS configuration
+│   ├── components.json               # ShadCN UI components config
+│   ├── README.md                     # App-specific documentation
+│   ├── API_DOCUMENTATION.md          # API endpoints documentation
+│   │
+│   ├── app/                          # Next.js app directory
+│   │   ├── layout.tsx                # Root layout component
+│   │   ├── page.tsx                  # Home page with customer datatable
+│   │   ├── globals.css               # Global styles
+│   │   └── api/                      # API routes
+│   │       └── customers/            # Customer API endpoints
+│   │           ├── route.ts          # GET /api/customers endpoint
+│   │           └── route.test.ts     # API endpoint tests (31 tests)
+│   │
+│   ├── components/                   # React components
+│   │   ├── customers-data-table.tsx  # Customer datatable component
+│   │   └── ui/                       # ShadCN UI components
+│   │       ├── button.tsx            # Button component
+│   │       ├── input.tsx             # Input component
+│   │       ├── select.tsx            # Select component
+│   │       └── table.tsx             # Table component
+│   │
+│   ├── lib/                          # Utility libraries
+│   │   ├── db.ts                     # SQLite database connection
+│   │   ├── utils.ts                  # Helper utilities
+│   │   ├── validation.ts             # Input validation functions
+│   │   └── validation.test.ts        # Validation tests
+│   │
+│   ├── types/                        # TypeScript type definitions
+│   │   └── customer.ts               # Customer interface
+│   │
+│   └── public/                       # Static assets
+│
+├── data-importer/                    # Python CSV importer module
+│   ├── __init__.py                   # Package initialization
+│   ├── csv_importer.py               # Main CSV importer class
+│   ├── test_csv_importer.py          # Unit tests (13 tests)
+│   └── __pycache__/                  # Python bytecode cache
+│
+└── instructions/                     # Project instructions
+    ├── README.md                     # Instructions documentation
+    └── data/                         # Data files
+        └── customers.csv             # Customer data source (1000 records)
+```
+
+## Overview
+
+This project consists of two main components:
+
+1. **Python CSV Importer** - A robust Python module that imports customer data from CSV into SQLite
+2. **Next.js Web Application** - A full-stack web app with REST API and interactive UI for browsing customers
+
+---
+
 # CSV to SQLite Importer
 
 A Python module for importing CSV files into SQLite databases with comprehensive error handling and unit tests.
@@ -149,3 +217,135 @@ All tests pass successfully, including:
 - 5 failing tests (error handling validation)
 - 1 integration test (actual customer data)
 
+# Customers API / Web App
+A web / API application built on top of NextJS framework featuring a dynamic customer datatable with filtering, search, and pagination capabilities.
+
+### Frontend Libraries
+- Tailwind CSS
+- ShadCN UI
+- React Testing Library
+
+### Features
+- **Interactive DataTable**: Displays customer data with sorting and pagination
+- **Real-time Search**: Filter customers by name or email
+- **Gender Filtering**: Filter customers by gender (Male, Female, Other)
+- **Pagination Controls**: Navigate through pages with customizable items per page (5, 10, 25, 50, 100)
+- **Responsive Design**: Mobile-friendly layout with adaptive controls
+- **Error Handling**: Graceful error states with retry functionality
+- **Loading States**: Visual feedback during data fetching
+
+### Installation
+- Go to `app` directory and run npm install
+``` bash
+cd app
+npm install
+```
+- Run dev server
+``` bash
+npm run dev
+```
+- NOTE: If the browser does not open after the build, you can manually go to `http://localhost:3000`.
+
+### GET /api/customers
+
+Returns a paginated list of customers with optional filtering.
+
+#### Query Parameters
+
+- `page` - Page number (default: 1, min: 1)
+- `limit` - Items per page (default: 10, max: 100)
+- `search` - Search by first name, last name, or email
+- `gender` - Filter by gender (Male, Female, Other)
+
+#### Response Format
+
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "first_name": "string",
+      "last_name": "string",
+      "email": "string",
+      "gender": "string",
+      "ip_address": "string",
+      "company": "string",
+      "city": "string",
+      "title": "string",
+      "website": "string"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 100,
+    "totalPages": 10,
+    "hasNext": true,
+    "hasPrevious": false
+  }
+}
+```
+
+### Running API Tests
+
+```bash
+cd app
+npm test -- route.test.ts
+```
+
+### Test Results
+
+```
+Test Suites: 1 passed, 1 total
+Tests:       31 passed, 31 total
+```
+
+#### Test Coverage
+
+The comprehensive test suite includes **31 passing tests** covering:
+
+**Successful Responses (3 tests)**
+- Default pagination
+- Custom pagination
+- Cache-Control headers
+
+**Pagination Scenarios (8 tests)**
+- First/middle/last page handling
+- Maximum limit enforcement (100)
+- Empty results
+- Correct LIMIT/OFFSET calculations
+
+**Search Filtering (3 tests)**
+- Filter by search term
+- SQL injection protection (sanitization)
+- Whitespace trimming
+
+**Gender Filtering (3 tests)**
+- Valid gender values (Male, Female, Other)
+- Invalid gender rejection
+
+**Combined Filters (2 tests)**
+- Search + gender with AND logic
+- Multiple filters + pagination
+
+**Error Handling (4 tests)**
+- Database connection errors
+- Query failures
+- Non-Error exceptions
+- Null result handling
+
+**Input Validation Edge Cases (5 tests)**
+- Negative/zero/non-numeric inputs
+- Empty/whitespace-only searches
+
+**Response Structure Validation (2 tests)**
+- Correct JSON structure
+- All required customer fields
+
+**Database Query Verification (4 tests)**
+- COUNT and data queries
+- Column selection
+- ORDER BY clause
+- LIMIT/OFFSET parameters
+
+All tests use Jest with mocked database connections for isolated testing.
